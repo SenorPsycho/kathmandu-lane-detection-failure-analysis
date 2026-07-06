@@ -1,102 +1,48 @@
-# RoadVision Nepal
+# Road Vision Nepal
 
-An evaluation of classical lane detection on Nepali road environments.
+This repository is being used for a dataset and ablation study on drivable-area segmentation for unmarked Kathmandu roads.
 
-## Research Question
+## Current focus
 
-Does classical computer vision lane detection work on Nepali roads? Where does it fail, why does it fail technically, and what would a system designed for this environment actually need?
+We are investigating whether classical computer-vision priors can improve deep learning segmentation on roads where lane markings are absent or weak. In particular, we are testing whether priors such as edge maps and HSV-based filtering provide useful signal for identifying drivable regions in Kathmandu scenes.
+
+## Research question
+
+Do classical vision cues, informed by a documented failure analysis of conventional lane-detection pipelines, improve deep-learning drivable-area segmentation on unmarked or weakly marked roads?
 
 ## Motivation
 
-Classical lane detection pipelines are built on assumptions that hold in structured road environments: painted lane markings, even lighting, clean asphalt. These assumptions are rarely questioned because they hold reliably in the datasets and environments where these systems are developed and tested.
+Classical lane-detection systems often assume the presence of painted lane markings, strong contrast, and structured road geometry. Those assumptions break down on many Kathmandu roads. This study examines whether simple priors can still help a modern segmentation model under those conditions.
 
-Nepali roads, particularly urban roads in Kathmandu, violate most of these assumptions. This project investigates what happens when a standard classical pipeline encounters that environment, characterizing specific failure mechanisms rather than simply demonstrating failure.
+## Study design
 
-## Methodology
+The work is organized as an ablation study comparing segmentation performance under different input conditions:
 
-A full 8-stage classical lane detection pipeline was implemented in Python using OpenCV:
+- Baseline segmentation model
+- Edge-map prior augmentation
+- HSV filtering prior augmentation
+- Combined edge + HSV priors
 
-1. Video input
-2. Grayscale conversion
-3. Gaussian blur
-4. Canny edge detection
-5. Region of interest masking
-6. Hough Line Transform
-7. Line averaging and stabilization
-8. Output video writer
+The design is informed by the failure analysis documented in [FAILURE_ANALYSIS.md](FAILURE_ANALYSIS.md), which outlines how classical pipelines fail when lane markings are absent and irrelevant edges dominate the scene.
 
-The pipeline was tested on two videos representing contrasting environments:
+## Dataset
 
-- **Highway footage**: a structured US highway with clear lane markings, used as a baseline to confirm the pipeline functions correctly under standard assumptions
-- **Kathmandu footage**: urban roads from Kathmandu to Dharke, recorded at dusk, with no consistent lane markings, dense surrounding structures, and mixed lighting
+The project uses road imagery from Kathmandu and related unstructured urban scenes, with an emphasis on:
 
-This evaluation is an exploratory case study based on a small set of representative videos and is intended to analyze failure mechanisms rather than provide statistically generalizable performance estimates.
+- Unmarked or weakly marked roads
+- Complex roadside structure
+- Mixed lighting and clutter
+- Drivable-area labels for segmentation evaluation
 
-Two adaptations were then applied and evaluated.
+## Expected outcome
 
-### HSV color filtering
+The goal is not to claim that classical priors are universally sufficient, but to test whether they provide measurable value in a difficult setting where standard lane-detection assumptions do not hold.
 
-**What it does**
+## Repository purpose
 
-Convert frames to HSV and create masks for yellow and white lane colors. Apply the combined mask to the original frame so the pipeline only processes pixels that match expected lane colors.
-
-**Outcome**
-
-On the highway footage this reduced false gradients and improved left-lane detection. On the Kathmandu footage it produced almost no output, which is correct because there are no painted lane colors to isolate.
-
-**Implication**
-
-HSV filtering improves behavior when markings exist by reducing false positives. It does not recover lanes on unmarked roads; instead it makes the pipeline fail silently when no markings are present.
-
-### Adaptive ROI
-
-**What it does**
-
-Estimate the region-of-interest apex per frame by scanning edge density rather than using a fixed vertical position. Use the detected apex to shape the triangular ROI dynamically.
-
-**Outcome**
-
-This produced no meaningful improvement. Highway results stayed the same and Kathmandu footage still lacked any lane signal.
-
-**Implication**
-
-ROI placement was not the limiting factor. Dynamically moving the search window cannot create a signal that does not exist in the frame.
-
-## Key Findings
-
-Two distinct failure modes were identified:
-
-**Signal Discontinuity**: present on highway footage where dashed lane markings cause intermittent detection between dash gaps. The signal exists but is interrupted. This failure is recoverable through temporal smoothing.
-
-**Signal Absence**: present throughout the Kathmandu footage. No lane markings exist on the road surface, so no intensity gradient is available for any stage to detect. Neither HSV filtering nor adaptive ROI improved this outcome, confirming that the bottleneck is the absence of the signal the pipeline is designed to detect, not a tuning problem.
-
-The pipeline does not fail gracefully under signal absence. It produces confident-looking output by latching onto building edges, dashboard boundaries, and noise fragments: making it more dangerous than a system that produces no output at all.
-
-## Output Samples
-
-**Canny Edge Detection: Highway vs Kathmandu**
-![Canny Comparison](images/Kathmandu_Footage_Vs_Highway_Footage_outswide__canny_comparision_.png)
-
-**ROI Masking: Highway vs Kathmandu**
-![ROI Comparison](images/Kathmandu_Footage_vs_Highway_footage_with_ROI.png)
-
-**Hough Line Detection: Highway vs Kathmandu**
-![Hough Line Comparison](images/HoughLine_Footage_Comparision.png)
-
-**Line Averaging: Baseline**
-![Line Averaging](images/Line_Averaging_Comparision.png)
-
-**Line Averaging: After HSV Filtering**
-![HSV Filtered Output](images/HSV_filtered_output_comparision.png)
-
-## Documentation
-
-Full failure analysis including stage-by-stage breakdown, assumption mapping, and adaptation experiment results is in [`FAILURE_ANALYSIS.md`](FAILURE_ANALYSIS.md).
+This repository currently contains the experiment code, analysis notes, and supporting material for the segmentation ablation study. The README will be refined later as the work matures.
 
 ## Stack
 
-Python, OpenCV, NumPy
+Python, OpenCV, NumPy, PyTorch-style segmentation workflows (subject to the current implementation)
 
-## Future Direction
-
-The primary limitation is the absence of reliable lane markings. Future work may investigate semantic segmentation methods that identify drivable surface directly, as well as sensor-fusion approaches incorporating depth, localization, or additional environmental context.
