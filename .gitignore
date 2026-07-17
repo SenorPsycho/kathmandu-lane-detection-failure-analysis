@@ -2,6 +2,14 @@
 Practice_Files/
 videos/
 
+# Large local datasets and generated outputs
+Output/
+Phase1_classical_lane_detection/Comparision_Images_Of_Pipeline/
+Phase1_classical_lane_detection/Self_Session_Log/
+phase2_hybrid_segmentation/dataset/raw_footage/
+phase2_hybrid_segmentation/dataset/extracted_frames/
+phase2_hybrid_segmentation/dataset/labeled_frames/
+
 # Python artifacts
 __pycache__/
 *.py[cod]
