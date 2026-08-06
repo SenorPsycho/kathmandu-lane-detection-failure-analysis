@@ -107,13 +107,13 @@ With no valid line segments returned, the later averaging stage has nothing lane
 ### Stage 7: Line Averaging and Stabilization
 
 **What it does**
-It groups Hough line segments by slope sign — negative slopes for the left lane, positive slopes for the right lane — and averages each group into a single slope and intercept. Those averaged parameters are then converted into two fixed-length lines drawn on the frame.
+It groups Hough line segments by slope sign - negative slopes for the left lane, positive slopes for the right lane - and averages each group into a single slope and intercept. Those averaged parameters are then converted into two fixed-length lines drawn on the frame.
 
 **What it assumed**
 Hough returns multiple segments per lane, all with consistent slope signs and similar intercepts. Averaging those segments should produce a stable, accurate representation of each lane boundary.
 
 **What happened on Kathmandu footage**
-The averaging stage received the noise fragments that Hough returned and treated them as lane evidence. It produced confident-looking lines every frame, but those lines were tracking building edges, dashboard boundaries, and random clutter — not actual lanes. The lines jumped around with no stability.
+The averaging stage received the noise fragments that Hough returned and treated them as lane evidence. It produced confident-looking lines every frame, but those lines were tracking building edges, dashboard boundaries, and random clutter - not actual lanes. The lines jumped around with no stability.
 
 **Why it happened technically**
 The averaging function cannot tell lane-relevant segments apart from noise fragments. It groups by slope sign and averages whatever it receives. When the input is noise, it produces a precise average of noise. The pipeline fails confidently rather than failing safely, because it has no mechanism to verify that the result corresponds to real road features.
