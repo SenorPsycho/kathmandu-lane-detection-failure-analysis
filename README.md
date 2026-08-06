@@ -34,12 +34,13 @@ Both experiments reinforce the core conclusion that this is not a parameter-tuni
 
 ## Repository structure
 
-Classical_Pipeline_Output/ # Processed output videos (highway, Kathmandu)
-Comparision_Images_Of_Pipeline/ # Stage-by-stage visual comparisons
-Session_Log/ # Development session logs (chronological)
-FAILURE_ANALYSIS.md # Full technical failure analysis
-main.py # Pipeline implementation
-
+```
+Classical_Pipeline_Output/       # Processed output videos (highway, Kathmandu)
+Comparision_Images_Of_Pipeline/  # Stage-by-stage visual comparisons
+Session_Log/                     # Development session logs (chronological)
+FAILURE_ANALYSIS.md              # Full technical failure analysis
+main.py                          # Pipeline implementation
+```
 
 ## Status
 
