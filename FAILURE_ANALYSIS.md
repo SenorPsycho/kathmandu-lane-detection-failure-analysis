@@ -41,7 +41,7 @@ Every downstream stage depends on intensity gradients that originate here. Since
 **What it does**
 It smooths the grayscale image by replacing each pixel with a weighted average of its neighbors. The goal is to reduce small intensity spikes so Canny edge detection does not react to random noise.
 
-**What it assumed**
+**What it assumed** 
 The image contains unwanted high-frequency noise, such as small intensity fluctuations, that can create false edges. Blurring should remove that noise and leave only meaningful structural edges, particularly lane markings.
 
 **What happened on Kathmandu footage**
@@ -87,7 +87,7 @@ ROI masking is a spatial filter, not a signal recovery tool. It can remove noise
 **Implication for the pipeline**
 This stage exposes the core failure: the problem is missing signal, not bad spatial filtering. A perfectly placed ROI still gives an empty output when the upstream stages have no lane signal to pass forward. Adjusting the triangle shape or position cannot fix what is fundamentally absent.
 
-### Stage 6: Hough Line Transform
+### Stage 6: Hough Line Transform 
 
 **What it does**
 It converts edge pixels from the ROI output into candidate line segments. The algorithm votes for lines that pass through multiple edge points and returns segments that exceed a minimum threshold.
@@ -107,13 +107,13 @@ With no valid line segments returned, the later averaging stage has nothing lane
 ### Stage 7: Line Averaging and Stabilization
 
 **What it does**
-It groups Hough line segments by slope sign - negative slopes for the left lane, positive slopes for the right lane - and averages each group into a single slope and intercept. Those averaged parameters are then converted into two fixed-length lines drawn on the frame.
+It groups Hough line segments by slope sign, using negative slopes for the left lane and positive slopes for the right lane, and averages each group into a single slope and intercept. Those averaged parameters are then converted into two fixed-length lines drawn on the frame.
 
 **What it assumed**
 Hough returns multiple segments per lane, all with consistent slope signs and similar intercepts. Averaging those segments should produce a stable, accurate representation of each lane boundary.
 
 **What happened on Kathmandu footage**
-The averaging stage received the noise fragments that Hough returned and treated them as lane evidence. It produced confident-looking lines every frame, but those lines were tracking building edges, dashboard boundaries, and random clutter - not actual lanes. The lines jumped around with no stability.
+The averaging stage received the noise fragments that Hough returned and treated them as lane evidence. It produced confident-looking lines every frame, but those lines were tracking building edges, dashboard boundaries, and random clutter rather than actual lanes. The lines jumped around with no stability.
 
 **Why it happened technically**
 The averaging function cannot tell lane-relevant segments apart from noise fragments. It groups by slope sign and averages whatever it receives. When the input is noise, it produces a precise average of noise. The pipeline fails confidently rather than failing safely, because it has no mechanism to verify that the result corresponds to real road features.
